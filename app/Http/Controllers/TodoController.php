@@ -47,36 +47,22 @@ class TodoController extends ApiController
 
     public function store(Request $request)
     {
-        // Get user from $request token.
-        if (! $user = auth()->setRequest($request)->user()) {
-            return $this->responseUnauthorized();
-        }
 
-        // Validate all the required parameters have been sent.
-        $validator = Validator::make($request->all(), [
-            'description' => 'required',
-            'ends_at' => 'required',
-            'is_completed' => 'required',
+       $postData = $this->validate($request, [
+           'description' => ['required','min:3'],
+           'date' => ['sometimes','date']
+       ]);
+
+
+        $todo = Todo::create([
+            'user_id' => 1,
+            'description' => $postData['description'],
+            'ends_at' => $postData['date'],
         ]);
 
-        if ($validator->fails()) {
-            return $this->responseUnprocessable($validator->errors());
-        }
+        return response()->json($todo,200);
 
-        // Warning: Data isn't being fully sanitized yet.
-        try {
-            $todo = Todo::create([
-                'user_id' => $user->id,
-                'value' => request('value'),
-            ]);
-            return response()->json([
-                'status' => 201,
-                'message' => 'Resource created.',
-                'id' => $todo->id
-            ], 201);
-        } catch (Exception $e) {
-            return $this->responseServerError('Error creating resource.');
-        }
+
     }
 
     public function update(Request $request, $id)
@@ -118,25 +104,14 @@ class TodoController extends ApiController
     }
 
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request)
     {
-        // Get user from $request token.
-        if (! $user = auth()->setRequest($request)->user()) {
-            return $this->responseUnauthorized();
-        }
 
-        $todo = Todo::where('id', $id)->firstOrFail();
+        $postData = $this->validate($request, [
+            'id' => ['required','exists:todos,id'],
+        ]);
 
-        // User can only delete their own data.
-        if ($todo->user_id !== $user->id) {
-            return $this->responseUnauthorized();
-        }
-
-        try {
-            $todo->delete();
-            return $this->responseResourceDeleted();
-        } catch (Exception $e) {
-            return $this->responseServerError('Error deleting resource.');
-        }
+        $todo = Todo::where('id', $postData['id'])->delete();
+        return response()->json('',200);
     }
 }

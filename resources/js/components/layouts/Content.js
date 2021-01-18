@@ -1,7 +1,13 @@
 import React, {Component} from 'react';
+import TodoEvent from '../../interfaces/TodoEvent';
+import TodoService from '../../services/TodoService';
 import Modal from '../common/modal';
 import TodoAdd from '../common/todoadd';
 import TodoList from '../pages/todo/Index';
+import Header from './Header';
+import SideBar from './SideBar';
+import { Redirect } from "react-router-dom";
+
 
 const TodoFooter = (props) => {
   return <div className="card-footer clearfix">
@@ -11,14 +17,50 @@ const TodoFooter = (props) => {
 
 export default class Content extends Component {
 
-    state = {showModal:true};
+    constructor(props) {
+        super(props)
+        this.state ={
+            navigate:false,
+            showModal:false,todos:[]
+        }
+    }
 
-    handleAddTodo(data){
-        console.log("data",data)
+
+  async componentDidMount() {
+      TodoService.getObservable().subscribe(async (event) =>{
+        const postData = {id:event.data.id};
+        await TodoService.removeTodo(postData)
+        let newTodos = this.state.todos.filter(todo =>{
+            return event.data.id !== todo.id;
+        });
+        this.setState({todos:newTodos});
+      })
+    const response = await TodoService.getTodoList();
+    this.setState({ todos: response });
+  }
+
+
+  componentWillUnmount() {
+      TodoService.getObservable().unsubscribe();
+  }
+
+
+    async handleAddTodo(data){
+        const todo = await TodoService.saveNewTodo(data);
+        let newtodos = this.state.todos;
+        newtodos.unshift(todo);
+        this.setState({todo:newtodos});
     }
     render(){
-        const {showModal} = this.state;
+        const {navigate,showModal,todos} = this.state;
+        const user = JSON.parse(localStorage.getItem("userData"));
+    if (navigate) {
+      return <Redirect to="/" push={true} />;
+    }
         return (
+            <div>
+            <Header />
+            <SideBar  user={user} />
             <div className="content-wrapper">
             {/* Content Header (Page header) */}
             <div className="content-header">
@@ -119,7 +161,7 @@ export default class Content extends Component {
                       </div>
                       {/* /.card-header */}
                       <div className="card-body">
-                        <TodoList />
+                        {todos.length > 0 && <TodoList todosProp={todos} />}
                         <Modal title="Add new TOdo" visibility={showModal} onClose={()=>this.setState({showModal:!showModal})}>
                         <TodoAdd onTodoAdd={(data) => this.handleAddTodo(data)}/>
                        </Modal>
@@ -138,6 +180,7 @@ export default class Content extends Component {
               </div>{/* /.container-fluid */}
             </section>
             {/* /.content */}
+          </div>
           </div>
 
         )

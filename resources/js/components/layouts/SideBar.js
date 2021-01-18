@@ -1,7 +1,19 @@
 import React, {Component} from 'react';
+import {Link, Redirect } from "react-router-dom";
 
 export default class SideBar extends Component {
+
+    onLogoutHandler = () => {
+        localStorage.clear();
+        this.setState({
+          navigate: true,
+        });
+
+      };
+
     render(){
+        const user = this.props.user;
+
         return (
           <aside className="main-sidebar sidebar-dark-primary elevation-4">
   {/* Brand Logo */}
@@ -17,7 +29,7 @@ export default class SideBar extends Component {
         <img src="dist/img/user2-160x160.jpg" className="img-circle elevation-2" alt="User Image" />
       </div>
       <div className="info">
-        <a href="#" className="d-block">Alexander Pierce</a>
+        <a href="#" className="d-block">{user.name}</a>
       </div>
     </div>
 
@@ -29,6 +41,12 @@ export default class SideBar extends Component {
             <i className="nav-icon far fa-circle text-info" />
             <p>TO-DO</p>
           </a>
+        </li>
+        <li className="nav-item">
+          <Link to="/" className="nav-link" onClick={this.onLogoutHandler}>
+            <i className="nav-icon far fa-sign-out-alt text-info" />
+            <p>Logout</p>
+          </Link>
         </li>
       </ul>
     </nav>

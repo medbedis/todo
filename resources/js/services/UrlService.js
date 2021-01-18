@@ -25,6 +25,14 @@ class UrlService {
         return apiDomain + "/api/todo/reorder";
     }
 
+    static saveTodoUrl() {
+        return apiDomain + "/api/todo/save";
+    }
+
+    static removeTodoUrl() {
+        return apiDomain + "/api/todo/delete";
+    }
+
 
 }
 

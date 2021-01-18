@@ -39,6 +39,9 @@ const SortableList = SortableContainer(({ items,markTodoComplete }) => {
 });
 
 
+const todosProp = (props) => {
+    todosProp:[]
+}
 
 
 
@@ -46,9 +49,13 @@ class TodoList extends Component {
   state = { todos: [], loading: false };
 
   async componentDidMount() {
-    this.setState({ loading: true });
-    const response = await TodoService.getTodoList();
-    this.setState({ loading: false, todos: response });
+    this.setState({ todos:this.props.todosProp });
+  }
+
+  componentDidUpdate(prevProps,prevState) {
+    if (prevProps.todosProp.length !== this.props.todosProp.length) {
+        this.setState({ todos:this.props.todosProp });
+    }
   }
 
   async markTodoComplete(todo) {

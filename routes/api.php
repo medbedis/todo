@@ -22,6 +22,6 @@ Route::post('login', 'API\RegisterController@login');
 Route::get('/todos','TodoController@index');
 Route::get('/todo/complete/{todo}','TodoController@markComplete');
 Route::post('/todo/reorder','TodoController@reorder');
-Route::get('/todo/delete/{id}','TodoController@destroy');
+Route::post('/todo/delete','TodoController@destroy');
 Route::post('/todo/update/{id}','TodoController@update');
-Route::post('/todo/save','TodoController@save');
+Route::post('/todo/save','TodoController@store');

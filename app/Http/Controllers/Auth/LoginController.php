@@ -2,39 +2,29 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\APIController;
 
-class LoginController extends Controller
+class LoginController extends APIController
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
-    use AuthenticatesUsers;
 
     /**
-     * Where to redirect users after login.
+     * Get a JWT via given credentials.
      *
-     * @var string
+     * @return \Illuminate\Http\JsonResponse
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function login()
     {
-        $this->middleware('guest')->except('logout');
+        $credentials = request(['email', 'password']);
+
+        if (! $token = auth()->attempt($credentials)) {
+            return response()->json(["status" => "failed", "success" => false, "message" => "Unable to login. Email doesn't exist."]);
+        }
+
+        // Get the user data.
+        $user = auth()->user();
+
+        return response()->json(["status" => 200, "success" => true, "message" => "You have logged in successfully", "data" => $user]);
+
     }
 }

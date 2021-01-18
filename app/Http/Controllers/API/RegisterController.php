@@ -18,30 +18,35 @@ class RegisterController extends BaseController
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'required|email',
-            'password' => 'required',
+            "name" => "required",
+            "email" => "required|email",
+            "password" => "required",
         ]);
 
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());
+        if ($validator->fails()) {
+            return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()]);
         }
 
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
 
-        $verified_code = rand(1000,9999);
+        $userDataArray = array(
+            "name" => $request->name,
+            "email" => $request->email,
+            "password" => bcrypt($request->password),
+        );
 
+        $user_status = User::where("email", $request->email)->first();
 
-        $input['verified_code'] = $verified_code;
+        if (!is_null($user_status)) {
+            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! email already registered"]);
+        }
 
-        $user = User::create($input);
-        $success['token']           =  $user->createToken('MyApp')->accessToken;
-        $success['name']            =  $user->name;
-        $success['user_id']         =  $user->id;
-        $success['verified_code']   =  $user->verified_code;
+        $user = User::create($userDataArray);
 
-        return $this->sendResponse($success, 'User register successfully.');
+        if (!is_null($user)) {
+            return response()->json(["status" => 200, "success" => true, "message" => "Registration completed successfully", "data" => $user]);
+        } else {
+            return response()->json(["status" => "failed", "success" => false, "message" => "failed to register"]);
+        }
     }
 
 
@@ -52,15 +57,12 @@ class RegisterController extends BaseController
      */
     public function login(Request $request)
     {
-        if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
-            $success['token'] =  $user->createToken('MyApp')-> accessToken;
-            $success['name'] =  $user->name;
 
-            return $this->sendResponse($success, 'User login successfully.');
-        }
-        else{
-            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+            return response()->json(["status" => 200, "success" => true, "message" => "You have logged in successfully", "data" => $user]);
+        } else {
+            return response()->json(["status" => "failed", "success" => false, "message" => "Unable to login. Email doesn't exist."]);
         }
     }
 }
