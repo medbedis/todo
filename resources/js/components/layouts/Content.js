@@ -1,13 +1,21 @@
 import React, {Component} from 'react';
 import Modal from '../common/modal';
+import TodoAdd from '../common/todoadd';
 import TodoList from '../pages/todo/Index';
 
-
+const TodoFooter = (props) => {
+  return <div className="card-footer clearfix">
+  <button type="button" className="btn btn-info float-right" onClick={()=>props.handleAddTodo()}><i className="fas fa-plus" /> Add item</button>
+</div>
+}
 
 export default class Content extends Component {
 
-    state = {showModal:false};
+    state = {showModal:true};
 
+    handleAddTodo(data){
+        console.log("data",data)
+    }
     render(){
         const {showModal} = this.state;
         return (
@@ -112,12 +120,12 @@ export default class Content extends Component {
                       {/* /.card-header */}
                       <div className="card-body">
                         <TodoList />
-                        <Modal title="Add new TOdo" visibility={showModal} onClose={() => this.setState({visibility: !showModal})}/>
+                        <Modal title="Add new TOdo" visibility={showModal} onClose={()=>this.setState({showModal:!showModal})}>
+                        <TodoAdd onTodoAdd={(data) => this.handleAddTodo(data)}/>
+                       </Modal>
                        </div>
                       {/* /.card-body */}
-                      <div className="card-footer clearfix">
-                        <button type="button" className="btn btn-info float-right"><i className="fas fa-plus" /> Add item</button>
-                      </div>
+                      <TodoFooter showModal={showModal} handleAddTodo={()=>this.setState({showModal:true})}/>
                     </div>
                     {/* /.card */}
                   </section>

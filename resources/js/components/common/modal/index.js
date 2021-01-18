@@ -5,15 +5,8 @@ import React, { Component, component } from 'react';
 
 class Modal extends Component {
 
-onClose(e){
-    $('.modal').removeClass('show')
-    $('.modal-backdrop').removeClass('modal-backdrop show')
-
-
-}
-
     render() {
-        const { title, visibility,onClose} = this.props;
+        const { title, visibility,onClose,children} = this.props;
 
         return (
             <React.Fragment>
@@ -22,16 +15,15 @@ onClose(e){
     <div className="modal-content">
       <div className="modal-header">
         <h4 className="modal-title">{title}</h4>
-        <button type="button" className="close"  data-dismiss="modal" aria-label="Close">
+        <button type="button" className="close" onClick={() => onClose()}  aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>
       </div>
       <div className="modal-body">
-        <p>One fine body…</p>
+            {children}
       </div>
       <div className="modal-footer justify-content-between">
-        <button type="button" onClick={this.onClose} className="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" className="btn btn-primary">Save changes</button>
+        <button type="button" onClick={() => onClose()} className="btn btn-default" >Close</button>
       </div>
     </div>
     {/* /.modal-content */}
